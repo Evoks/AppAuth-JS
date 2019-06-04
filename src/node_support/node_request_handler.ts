@@ -61,7 +61,7 @@ export class NodeBasedHandler extends AuthorizationRequestHandler {
       const searchParams = new Url.URLSearchParams(url.query || '');
 
       const state = searchParams.get('state') || undefined;
-      const code = searchParams.get('code');
+      const code = searchParams.get('code') || searchParams.get('approvalCode');
       const error = searchParams.get('error');
 
       if (!state && !code && !error) {
