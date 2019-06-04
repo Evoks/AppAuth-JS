@@ -38,8 +38,8 @@ export class NodeBasedHandler extends AuthorizationRequestHandler {
   authorizationPromise: Promise<AuthorizationRequestResponse|null>|null = null;
 
   constructor(
-      // default to port 8000
-      public httpServerPort = 8000,
+      // default to port 38198
+      public httpServerPort = 38198,
       utils: QueryStringUtils = new BasicQueryStringUtils(),
       crypto: Crypto = new NodeCrypto()) {
     super(utils, crypto);
