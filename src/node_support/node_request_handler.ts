@@ -28,18 +28,11 @@ import {NodeCrypto} from './crypto_utils';
 // TypeScript typings for `opener` are not correct and do not export it as module
 import opener = require('opener');
 
-class ServerEventsEmitter extends EventEmitter {
-  static ON_UNABLE_TO_START = 'unable_to_start';
-  static ON_AUTHORIZATION_RESPONSE = 'authorization_response';
-}
-
 export class NodeBasedHandler extends AuthorizationRequestHandler {
   // the handle to the current authorization request
   authorizationPromise: Promise<AuthorizationRequestResponse|null>|null = null;
 
   constructor(
-      // default to port 38198
-      public httpServerPort = 38198,
       utils: QueryStringUtils = new BasicQueryStringUtils(),
       crypto: Crypto = new NodeCrypto()) {
     super(utils, crypto);
@@ -50,7 +43,6 @@ export class NodeBasedHandler extends AuthorizationRequestHandler {
       request: AuthorizationRequest) {
     // use opener to launch a web browser and start the authorization flow.
     // start a web server to handle the authorization response.
-    const emitter = new ServerEventsEmitter();
 
     const requestHandler = (httpRequest: Http.IncomingMessage, response: Http.ServerResponse) => {
       if (!httpRequest.url) {
@@ -87,35 +79,19 @@ export class NodeBasedHandler extends AuthorizationRequestHandler {
         response: authorizationResponse,
         error: authorizationError
       } as AuthorizationRequestResponse;
-      emitter.emit(ServerEventsEmitter.ON_AUTHORIZATION_RESPONSE, completeResponse);
-      response.end('Close your browser to continue');
     };
 
     this.authorizationPromise = new Promise<AuthorizationRequestResponse>((resolve, reject) => {
-      emitter.once(ServerEventsEmitter.ON_UNABLE_TO_START, () => {
-        reject(`Unable to create HTTP server at port ${this.httpServerPort}`);
-      });
-      emitter.once(ServerEventsEmitter.ON_AUTHORIZATION_RESPONSE, (result: any) => {
-        server.close();
-        // resolve pending promise
-        resolve(result as AuthorizationRequestResponse);
-        // complete authorization flow
-        this.completeAuthorizationRequestIfPossible();
-      });
     });
 
-    let server: Http.Server;
     request.setupCodeVerifier()
         .then(() => {
-          server = Http.createServer(requestHandler);
-          server.listen(this.httpServerPort);
           const url = this.buildRequestUrl(configuration, request);
           log('Making a request to ', request, url);
           opener(url);
         })
         .catch((error) => {
           log('Something bad happened ', error);
-          emitter.emit(ServerEventsEmitter.ON_UNABLE_TO_START);
         });
   }
 
