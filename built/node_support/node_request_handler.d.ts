@@ -4,9 +4,8 @@ import { AuthorizationServiceConfiguration } from '../authorization_service_conf
 import { Crypto } from '../crypto_utils';
 import { QueryStringUtils } from '../query_string_utils';
 export declare class NodeBasedHandler extends AuthorizationRequestHandler {
-    httpServerPort: number;
     authorizationPromise: Promise<AuthorizationRequestResponse | null> | null;
-    constructor(httpServerPort?: number, utils?: QueryStringUtils, crypto?: Crypto);
+    constructor(utils?: QueryStringUtils, crypto?: Crypto);
     performAuthorizationRequest(configuration: AuthorizationServiceConfiguration, request: AuthorizationRequest): void;
     protected completeAuthorizationRequest(): Promise<AuthorizationRequestResponse | null>;
 }

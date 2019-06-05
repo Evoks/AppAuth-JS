@@ -50,7 +50,7 @@ export class App {
 
   constructor() {
     this.notifier = new AuthorizationNotifier();
-    this.authorizationHandler = new NodeBasedHandler(PORT);
+    this.authorizationHandler = new NodeBasedHandler();
     this.tokenHandler = new BaseTokenRequestHandler(requestor);
     // set notifier to deliver responses
     this.authorizationHandler.setAuthorizationNotifier(this.notifier);
@@ -93,7 +93,7 @@ export class App {
       configuration: AuthorizationServiceConfiguration,
       request: AuthorizationRequest,
       response: AuthorizationResponse) {
-    
+
     let extras: StringMap|undefined = undefined;
     if (request && request.internal) {
       extras = {};
